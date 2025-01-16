@@ -24,3 +24,4 @@ Time tracking application for work as using google sheets is not fun anymore, if
 - [ ] authentication
 - [ ] https?
 - [ ] logging
+- [ ] testing
