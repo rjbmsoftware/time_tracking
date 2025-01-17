@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,6 +10,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.GET("/projects", getProjects)
+	router.GET("/projects/:id", getProject)
 	router.POST("/projects", postProjects)
 
 	router.Run("localhost:8080")
@@ -27,6 +29,23 @@ var projects = []project{
 
 func getProjects(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, projects)
+}
+
+func getProject(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "id must be an integer"})
+		return
+	}
+
+	for _, proj := range projects {
+		if proj.ID == id {
+			c.IndentedJSON(http.StatusOK, proj)
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "project not found"})
 }
 
 func postProjects(c *gin.Context) {
