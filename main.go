@@ -5,29 +5,45 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func main() {
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db.AutoMigrate(&Project{})
+	db.Create(&Project{ID: 1, Name: "test"})
+	db.Create(&Project{ID: 2, Name: "another test"})
+
 	router := gin.Default()
+	router.Use(func(c *gin.Context) {
+		c.Set("db", db)
+		c.Next()
+	})
 	router.GET("/projects", getProjects)
 	router.GET("/projects/:id", getProject)
-	router.POST("/projects", postProjects)
+	// router.POST("/projects", postProjects)
 
 	router.Run("localhost:8080")
 }
 
-type project struct {
+type Project struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-var projects = []project{
-	{ID: 1, Name: "mobile"},
-	{ID: 2, Name: "web"},
-	{ID: 3, Name: "admin"},
-}
-
 func getProjects(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	var projects []Project
+	result := db.Find(&projects)
+
+	if result.Error != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+	}
 	c.IndentedJSON(http.StatusOK, projects)
 }
 
@@ -38,23 +54,24 @@ func getProject(c *gin.Context) {
 		return
 	}
 
-	for _, proj := range projects {
-		if proj.ID == id {
-			c.IndentedJSON(http.StatusOK, proj)
-			return
-		}
+	db := c.MustGet("db").(*gorm.DB)
+
+	var project Project
+	if err := db.First(&project, "ID = ?", id).Error; err == nil {
+		c.IndentedJSON(http.StatusOK, project)
+		return
 	}
 
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "project not found"})
 }
 
-func postProjects(c *gin.Context) {
-	var newProject project
+// func postProjects(c *gin.Context) {
+// 	var newProject Project
 
-	if err := c.BindJSON(&newProject); err != nil {
-		return
-	}
+// 	if err := c.BindJSON(&newProject); err != nil {
+// 		return
+// 	}
 
-	projects = append(projects, newProject)
-	c.IndentedJSON(http.StatusCreated, newProject)
-}
+// 	projects = append(projects, newProject)
+// 	c.IndentedJSON(http.StatusCreated, newProject)
+// }
