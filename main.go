@@ -4,13 +4,18 @@ import (
 	"net/http"
 	"strconv"
 
+	docs "time-tracking/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func main() {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	docs.SwaggerInfo.BasePath = "/api/v1"
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -28,6 +33,8 @@ func main() {
 	router.GET("/projects/:id", getProject)
 	router.POST("/projects", postProjects)
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
 	router.Run("localhost:8080")
 }
 
@@ -36,6 +43,17 @@ type Project struct {
 	Name string `json:"name"`
 }
 
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary ping example
+// @Schemes
+// @Description do ping
+// @Tags example
+// @Accept json
+// @Produce json
+// @Success 200 {string} Helloworld
+// @Router /example/helloworld [get]
 func getProjects(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var projects []Project
