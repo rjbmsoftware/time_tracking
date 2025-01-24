@@ -13,7 +13,6 @@ type User struct {
 	Name         string `gorm:"type:varchar(255)"`
 	Email        string `gorm:"unique"`
 	PasswordHash string `gorm:"type:varchar(255)"`
-	Salt         string `gorm:"type:varchar(255)"`
 	IsAdmin      bool   `gorm:"type:bool"`
 }
 

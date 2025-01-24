@@ -30,12 +30,10 @@ func adminUserExists(db *gorm.DB) bool {
 
 func createDefaultAdminUser(db *gorm.DB) string {
 	password := RandomString(10)
-	salt := RandomString(10)
-	hash, _ := EncryptPassword(password + salt)
+	hash, _ := EncryptPassword(password)
 	var admin = User{
 		Name:         "admin",
 		IsAdmin:      true,
-		Salt:         salt,
 		PasswordHash: hash,
 	}
 
