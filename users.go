@@ -28,17 +28,18 @@ func adminUserExists(db *gorm.DB) bool {
 	return count > 0
 }
 
-func createDefaultAdminUser(db *gorm.DB) string {
+func createDefaultAdminUser(db *gorm.DB) (string, User) {
 	password := RandomString(10)
 	hash, _ := EncryptPassword(password)
 	var admin = User{
 		Name:         "admin",
 		IsAdmin:      true,
 		PasswordHash: hash,
+		Email:        "test@test.com",
 	}
 
 	db.Save(&admin)
-	return password
+	return password, admin
 }
 
 func RandomString(n int) string {

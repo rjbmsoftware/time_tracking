@@ -22,8 +22,9 @@ func main() {
 
 	if !adminUserExists(db) {
 		log.Println("No admin user found")
-		password := createDefaultAdminUser(db)
-		log.Printf("Admin user created, username: admin, password: %s\n", password)
+		password, adminUser := createDefaultAdminUser(db)
+		message := "Admin user created, username: %s, password: %s, email: %s"
+		log.Printf(message, adminUser.Name, password, adminUser.Email)
 	}
 
 	// db.Create(&Project{Name: "test"})
