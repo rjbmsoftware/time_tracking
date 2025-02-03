@@ -5,6 +5,7 @@ import (
 	docs "time-tracking/docs"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/sqlite"
@@ -29,7 +30,10 @@ func main() {
 
 	// db.Create(&Project{Name: "test"})
 	// db.Create(&Project{Name: "another test"})
-	router := gin.Default()
+	// router := gin.Default()
+	validate := validator.New()
+	authController := NewAuthControllerImpl(db, validate)
+	router := AuthRouter(authController)
 	router.Use(func(c *gin.Context) {
 		c.Set("db", db)
 		c.Next()
