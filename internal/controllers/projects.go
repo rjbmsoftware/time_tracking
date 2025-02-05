@@ -1,8 +1,9 @@
-package main
+package controllers
 
 import (
 	"net/http"
 	"strconv"
+	"time-tracking/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,7 +22,7 @@ import (
 // @Router /example/helloworld [get]
 func getProjects(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
-	var projects []Project
+	var projects []models.Project
 	result := db.Find(&projects)
 
 	if result.Error != nil {
@@ -39,7 +40,7 @@ func getProject(c *gin.Context) {
 
 	db := c.MustGet("db").(*gorm.DB)
 
-	var project Project
+	var project models.Project
 	if err := db.First(&project, "id = ?", id).Error; err == nil {
 		c.IndentedJSON(http.StatusOK, project)
 		return
@@ -49,7 +50,7 @@ func getProject(c *gin.Context) {
 }
 
 func postProjects(c *gin.Context) {
-	var newProject Project
+	var newProject models.Project
 
 	if err := c.BindJSON(&newProject); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "error"})
