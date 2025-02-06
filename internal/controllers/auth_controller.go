@@ -1,8 +1,10 @@
-package main
+package controllers
 
 import (
 	"fmt"
 	"net/http"
+	"time-tracking/internal/models"
+	"time-tracking/internal/requests"
 
 	"gorm.io/gorm"
 
@@ -20,7 +22,7 @@ func NewAuthControllerImpl(Db *gorm.DB, validate *validator.Validate) *AuthContr
 }
 
 func (c AuthController) Register(ctx *gin.Context) {
-	var reqBody RegisterRequest
+	var reqBody requests.RegisterRequest
 	if err := ctx.BindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -33,7 +35,7 @@ func (c AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	var existingUser User
+	var existingUser models.User
 	result := c.Db.Where("email = ?", reqBody.Email).First(&existingUser)
 	if result.RowsAffected > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
@@ -47,7 +49,7 @@ func (c AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	newUser := User{
+	newUser := models.User{
 		Name:         reqBody.Name,
 		Email:        reqBody.Email,
 		PasswordHash: password,
@@ -62,7 +64,7 @@ func (c AuthController) Register(ctx *gin.Context) {
 }
 
 func (c AuthController) Login(ctx *gin.Context) {
-	var reqBody LoginRequest
+	var reqBody requests.LoginRequest
 	if err := ctx.BindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -75,7 +77,7 @@ func (c AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	var existingUser User
+	var existingUser models.User
 	result := c.Db.Where("email = ?", reqBody.Email).First(&existingUser)
 	if result.RowsAffected < 1 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email not found"})

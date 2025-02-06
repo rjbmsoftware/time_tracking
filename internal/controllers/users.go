@@ -1,7 +1,8 @@
-package main
+package controllers
 
 import (
 	"math/rand"
+	"time-tracking/internal/models"
 
 	"time"
 
@@ -23,15 +24,15 @@ func ComparePassword(password, hash string) bool {
 
 func adminUserExists(db *gorm.DB) bool {
 	var count int64
-	db.Model(&User{}).Where("is_admin = ?", true).Count(&count)
+	db.Model(&models.User{}).Where("is_admin = ?", true).Count(&count)
 
 	return count > 0
 }
 
-func createDefaultAdminUser(db *gorm.DB) (string, User) {
+func createDefaultAdminUser(db *gorm.DB) (string, models.User) {
 	password := RandomString(10)
 	hash, _ := EncryptPassword(password)
-	var admin = User{
+	var admin = models.User{
 		Name:         "admin",
 		IsAdmin:      true,
 		PasswordHash: hash,
