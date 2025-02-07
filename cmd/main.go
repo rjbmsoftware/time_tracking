@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 	docs "time-tracking/docs"
+	"time-tracking/internal/controllers"
+	"time-tracking/internal/models"
+	"time-tracking/internal/routers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -19,11 +22,11 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&Project{}, &User{})
+	db.AutoMigrate(&models.Project{}, &models.User{})
 
-	if !adminUserExists(db) {
+	if !controllers.AdminUserExists(db) {
 		log.Println("No admin user found")
-		password, adminUser := createDefaultAdminUser(db)
+		password, adminUser := controllers.CreateDefaultAdminUser(db)
 		message := "Admin user created, username: %s, password: %s, email: %s"
 		log.Printf(message, adminUser.Name, password, adminUser.Email)
 	}
@@ -32,15 +35,15 @@ func main() {
 	// db.Create(&Project{Name: "another test"})
 	// router := gin.Default()
 	validate := validator.New()
-	authController := NewAuthControllerImpl(db, validate)
-	router := AuthRouter(authController)
+	authController := controllers.NewAuthControllerImpl(db, validate)
+	router := routers.AuthRouter(authController)
 	router.Use(func(c *gin.Context) {
 		c.Set("db", db)
 		c.Next()
 	})
-	router.GET("/projects", getProjects)
-	router.GET("/projects/:id", getProject)
-	router.POST("/projects", postProjects)
+	router.GET("/projects", controllers.GetProjects)
+	router.GET("/projects/:id", controllers.GetProject)
+	router.POST("/projects", controllers.PostProjects)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 

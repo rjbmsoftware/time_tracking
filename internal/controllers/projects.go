@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /example/helloworld [get]
-func getProjects(c *gin.Context) {
+func GetProjects(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var projects []models.Project
 	result := db.Find(&projects)
@@ -31,7 +31,7 @@ func getProjects(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, projects)
 }
 
-func getProject(c *gin.Context) {
+func GetProject(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "id must be an integer"})
@@ -49,7 +49,7 @@ func getProject(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "project not found"})
 }
 
-func postProjects(c *gin.Context) {
+func PostProjects(c *gin.Context) {
 	var newProject models.Project
 
 	if err := c.BindJSON(&newProject); err != nil {

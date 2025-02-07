@@ -22,14 +22,14 @@ func ComparePassword(password, hash string) bool {
 	return err == nil
 }
 
-func adminUserExists(db *gorm.DB) bool {
+func AdminUserExists(db *gorm.DB) bool {
 	var count int64
 	db.Model(&models.User{}).Where("is_admin = ?", true).Count(&count)
 
 	return count > 0
 }
 
-func createDefaultAdminUser(db *gorm.DB) (string, models.User) {
+func CreateDefaultAdminUser(db *gorm.DB) (string, models.User) {
 	password := RandomString(10)
 	hash, _ := EncryptPassword(password)
 	var admin = models.User{

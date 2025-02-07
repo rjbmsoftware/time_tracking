@@ -1,10 +1,12 @@
-package main
+package routers
 
 import (
+	"time-tracking/internal/controllers"
+
 	"github.com/gin-gonic/gin"
 )
 
-func AuthRouter(authController *AuthController) *gin.Engine {
+func AuthRouter(authController *controllers.AuthController) *gin.Engine {
 	service := gin.Default()
 
 	router := service.Group("/auth")
